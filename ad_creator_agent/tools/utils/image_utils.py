@@ -3,6 +3,7 @@ import io
 import base64
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from PIL import Image
+from agents.tool import ToolOutputImage, ToolOutputText
 
 # Constants
 IMAGES_DIR = "./generated_images"
@@ -129,9 +130,9 @@ def create_image_urls(results, include_text_labels=False):
     """Create image URLs array for agent output"""
     image_urls = []
     for result in results:
-        # if include_text_labels:
-        #     image_urls.append({"type": "text", "text": f"{result['image_name']}:\n"})
-        image_urls.append({"type": "image_url", "image_url": {"url": f"data:image/png;base64,{result['base64']}"}})
+        if include_text_labels:
+            image_urls.append(ToolOutputText(type="text", text=f"{result['image_name']}:\n"))
+        image_urls.append(ToolOutputImage(type="image", image_url=f"data:image/png;base64,{result['base64']}", detail="auto"))
     return image_urls
 
 

@@ -1,5 +1,5 @@
 import os
-from agency_swarm.tools import BaseTool
+from pydantic import BaseModel
 from pydantic import Field
 from google import genai
 from ad_creator_agent.tools.utils import (
@@ -13,13 +13,14 @@ from ad_creator_agent.tools.utils import (
     create_image_urls,
     compress_image_for_base64,
 )
+from agents.tool import ToolOutputImage, function_tool
 from typing import Literal, Optional
 
 # Constants
 MODEL_NAME = "gemini-2.5-flash-image-preview"
 
 
-class GenerateImage(BaseTool):
+class GenerateImage(BaseModel):
     """
     Generate images using Google's Gemini 2.5 Flash Image (Nano Banana) model.
     """
@@ -46,83 +47,85 @@ class GenerateImage(BaseTool):
         description="The aspect ratio of the generated image (default is 1:1)",
     )
 
-    def run(self):
-        try:
-            # Validate num_variants
-            validation_error = validate_num_variants(self.num_variants)
-            if validation_error:
-                return validation_error
+@function_tool
+def generate_image(args: GenerateImage) -> ToolOutputImage:
+    try:
+        # Validate num_variants
+        validation_error = validate_num_variants(args.num_variants)
+        if validation_error:
+            return validation_error
 
-            # Get API key from environment
-            api_key, api_error = get_api_key()
-            if api_error:
-                return api_error
+        # Get API key from environment
+        api_key, api_error = get_api_key()
+        if api_error:
+            return api_error
 
-            print(f"Generating image with prompt: {self.prompt}")
-            print(f"Generating {self.num_variants} variant(s)")
+        print(f"Generating image with prompt: {args.prompt}")
+        print(f"Generating {args.num_variants} variant(s)")
 
-            # Initialize the Google AI client
-            client = genai.Client(api_key=api_key)
+        # Initialize the Google AI client
+        client = genai.Client(api_key=api_key)
 
-            # Create output directory if it doesn't exist
-            os.makedirs(IMAGES_DIR, exist_ok=True)
+        # Create output directory if it doesn't exist
+        os.makedirs(IMAGES_DIR, exist_ok=True)
 
-            def generate_single_variant(variant_num):
-                """Generate a single image variant"""
-                try:
-                    print(f"Generating variant {variant_num}/{self.num_variants}")
+        def generate_single_variant(variant_num):
+            """Generate a single image variant"""
+            try:
+                print(f"Generating variant {variant_num}/{args.num_variants}")
 
-                    # Generate image using Gemini 2.5 Flash Image
-                    response = client.models.generate_content(
-                        model=MODEL_NAME,
-                        contents=[self.prompt],
-                        config=genai.types.GenerateContentConfig(
-                            image_config=genai.types.ImageConfig(
-                                aspect_ratio=self.aspect_ratio,
-                            )
-                        ),
-                    )
-
-                    # Extract the generated image
-                    image, text_output = extract_image_from_response(response)
-
-                    if image is None:
-                        print(
-                            f"Warning: No image was generated for variant {variant_num}. Text output: {text_output}"
+                # Generate image using Gemini 2.5 Flash Image
+                response = client.models.generate_content(
+                    model=MODEL_NAME,
+                    contents=[args.prompt],
+                    config=genai.types.GenerateContentConfig(
+                        image_config=genai.types.ImageConfig(
+                            aspect_ratio=args.aspect_ratio,
                         )
-                        return None
+                    ),
+                )
 
-                    # Process variant result
-                    return process_variant_result(
-                        variant_num,
-                        image,
-                        self.file_name,
-                        self.num_variants,
-                        compress_image_for_base64,
+                # Extract the generated image
+                image, text_output = extract_image_from_response(response)
+
+                if image is None:
+                    print(
+                        f"Warning: No image was generated for variant {variant_num}. Text output: {text_output}"
                     )
-                except Exception as e:
-                    print(f"Error generating variant {variant_num}: {str(e)}")
                     return None
 
-            # Run variants in parallel
-            results = run_parallel_variants(generate_single_variant, self.num_variants)
+                # Process variant result
+                return process_variant_result(
+                    variant_num,
+                    image,
+                    args.file_name,
+                    args.num_variants,
+                    compress_image_for_base64,
+                )
+            except Exception as e:
+                print(f"Error generating variant {variant_num}: {str(e)}")
+                return None
 
-            if not results:
-                return "Error: No variants were successfully generated."
+        # Run variants in parallel
+        results = run_parallel_variants(generate_single_variant, args.num_variants)
 
-            # Create and print result summary
-            result_text = create_result_summary(results, "Generated")
-            print(result_text)
+        if not results:
+            return "Error: No variants were successfully generated."
 
-            # Return array of image URLs
-            return create_image_urls(results, include_text_labels=True)
+        # Create and print result summary
+        result_text = create_result_summary(results, "Generated")
+        print(result_text)
 
-        except Exception as e:
-            return f"Error generating image: {str(e)}"
+        # Return array of image URLs
+        # return ToolOutputImage(type="image", image_url=f"data:image/png;base64,{results[0]['base64']}", detail="auto")
+        return create_image_urls(results, include_text_labels=True)
+
+    except Exception as e:
+        return f"Error generating image: {str(e)}"
 
 
 # Create alias for Agency Swarm tool loading
-generate_image = GenerateImage
+# generate_image = GenerateImage
 
 if __name__ == "__main__":
     # Example usage with Google Gemini 2.5 Flash Image

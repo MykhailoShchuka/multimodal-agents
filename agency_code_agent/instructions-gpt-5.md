@@ -125,6 +125,7 @@ assistant: src/foo.c
 # Code style
 
 - IMPORTANT: DO NOT ADD ANY COMMENTS unless asked
+- IMPORTANT: To allow for easier QA process, every element of the generated app/web page should have a distinct name defined in its attributes that allows to determine the purpose of the element. Examples: `chat_send_button`, `features_dropdown_menu`, `chat_interface_window`
 
 # Task Management
 

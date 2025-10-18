@@ -112,7 +112,7 @@ Simple and fun - just a shared canvas everyone can draw on together. Add rainbow
 Ask QA agent to perform a qa once finished developing.
 ```
 
-### 🖼️ Ad creative generation (real-world example)
+### 🖼️ Ad creative generation
 
 ```
 Create an ad creative package for a new product, then generate its logo.

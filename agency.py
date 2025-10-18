@@ -32,7 +32,6 @@ litellm.modify_params = True
 # switch between models here
 # model = "anthropic/claude-sonnet-4-20250514"
 model = "gpt-5"
-# coder = create_agency_code_agent(model="gpt-5", reasoning_effort="high")
 coder = create_agency_code_agent(
     model=model, reasoning_effort="high"
 )
@@ -61,5 +60,5 @@ if __name__ == "__main__":
     #     pass
     
     # Uncomment the line below to run the agency terminal demo
-    agency.terminal_demo(show_reasoning=False if model.startswith("anthropic") else True)
+    agency.terminal_demo()
     # agency.visualize()
