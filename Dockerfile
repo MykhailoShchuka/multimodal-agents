@@ -6,8 +6,6 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-RUN chmod -R 777 /app
-
 # Install Node.js and npm (includes npx)
 RUN apt-get update && \
     apt-get install -y nodejs npm && \
