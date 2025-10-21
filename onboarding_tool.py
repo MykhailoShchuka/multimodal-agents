@@ -61,6 +61,6 @@ if __name__ == "__main__":
 
     # generate schema
     schema = OnboardingTool.model_json_schema()
-		path = os.path.realpath(os.path.abspath("onboarding_tool_schema.json"))
+		path = os.path.realpath(os.path.abspath("./onboarding_tool_schema.json"))
     with open(path, "w") as f:
         json.dump(schema, f, indent=4)
