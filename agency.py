@@ -29,8 +29,6 @@ load_dotenv()
 current_dir = os.path.dirname(os.path.abspath(__file__))
 litellm.modify_params = True
 
-# switch between models here
-# model = "anthropic/claude-sonnet-4-20250514"
 model = "gpt-5"
 coder = create_agency_code_agent(
     model=model, reasoning_effort="high"
@@ -42,23 +40,17 @@ data_analyst = create_data_analyst_agent(model=model, reasoning_effort="medium")
 
 ad_creator = create_ad_creator(model=model, reasoning_effort="medium")
 
-agency = Agency(
-    coder, data_analyst, ad_creator,
-    name="AgencyCode",
-    communication_flows=[
-        (coder, qa),
-    ],
-)
+def create_agency(load_threads_callback=None):
+    agency = Agency(
+        coder, data_analyst, ad_creator, qa,
+        name="AgencyCode",
+        communication_flows=[
+            (coder, qa),
+        ],
+        load_threads_callback=load_threads_callback,
+    )
+    return agency
 
 if __name__ == "__main__":
-    # from tools.bash import Bash
-    # bash = Bash(command="npm run dev --prefix \"D:\\work\\VRSEN\\code\\multimodal-agents\\Agency-Code\\rplace\"", background=True)
-    # print("Starting development server in background...")
-    # print(bash.run())
-    # print("Server started! Agent can now continue with other tasks.")
-    # while True:
-    #     pass
-    
-    # Uncomment the line below to run the agency terminal demo
+    agency = create_agency()
     agency.terminal_demo()
-    # agency.visualize()

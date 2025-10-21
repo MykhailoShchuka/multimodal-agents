@@ -1,4 +1,5 @@
-git+https://github.com/VRSEN/agency-swarm.git@feature/multimodal-tool-outputs
+agency-swarm[fastapi]>=1.2.1
+agency-swarm[litellm]>=1.2.1
 openai-agents[litellm]
 beautifulsoup4>=4.9.0
 dulwich>=0.21.6
@@ -14,4 +15,5 @@ google-genai>=0.3.0
 pillow>=9.0.0
 selenium>=4.0.0
 webdriver-manager>=3.8.0
+websocket-client>=1.0.0
 matplotlib>=3.5.0

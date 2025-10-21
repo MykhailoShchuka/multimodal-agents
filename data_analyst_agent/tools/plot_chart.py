@@ -23,7 +23,7 @@ class PlotChart(BaseModel):
         default="line", description="Type of chart to render"
     )
     file_name: str = Field(
-        ..., description="Base file name for the saved chart (without extension)"
+        ..., description="Base file name for the saved chart (without extension), without special characters or spaces."
     )
     x_label: Optional[str] = Field(default=None, description="Label for X axis")
     y_label: Optional[str] = Field(default=None, description="Label for Y axis")
@@ -73,7 +73,7 @@ def plot_chart(args: PlotChart) -> ToolOutputImage:
         os.makedirs(screenshots_dir, exist_ok=True)
 
         timestamp = time.strftime("%Y%m%d-%H%M%S")
-        filename = f"screenshot_{args.title}_{timestamp}.png"
+        filename = f"screenshot_{args.file_name}_{timestamp}.png"
         save_path = os.path.join(screenshots_dir, filename)
         with open(save_path, "wb") as out_file:
             out_file.write(buffer.getvalue())

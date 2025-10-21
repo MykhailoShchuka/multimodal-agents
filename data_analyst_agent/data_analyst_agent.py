@@ -1,10 +1,4 @@
 import os
-
-# # Add the parent directory to the Python path for imports
-# parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# if parent_dir not in sys.path:
-#     sys.path.insert(0, parent_dir)
-
 from agency_swarm import Agent, ModelSettings
 from openai.types.shared.reasoning import Reasoning
 
@@ -29,9 +23,10 @@ def create_data_analyst_agent(model:str = "gpt-5-mini", reasoning_effort: str = 
 
 if __name__ == "__main__":
     from dotenv import load_dotenv
+    from agency_swarm import Agency
 
     load_dotenv()
-    from agency_swarm import Agency
+    
     agent = create_data_analyst_agent()
     agency = Agency(agent)
     agency.terminal_demo()
